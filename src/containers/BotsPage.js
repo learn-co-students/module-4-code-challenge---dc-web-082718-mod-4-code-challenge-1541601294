@@ -3,6 +3,7 @@ import Adapter from '../Adapter'
 import BotCollection from './BotCollection'
 import YourBotArmy from './YourBotArmy'
 import BotSpecs from '../components/BotSpecs'
+import Navbar from '../components/Navbar'
 
 const api = new Adapter()
 const BOTSURL = 'https://bot-battler-api.herokuapp.com/api/v1/bots'
@@ -13,6 +14,7 @@ class BotsPage extends React.Component {
     super()
     this.state = {
       bots: [],
+      currentBots: [],
       army: [],
       selected: null
     }
@@ -24,15 +26,9 @@ class BotsPage extends React.Component {
 
   setBotsState = (data) => {
     this.setState({
-      bots: data
+      bots: data,
+      currentBots: data
     })
-  }
-
-  addToArmy = (bot) => {
-    this.updateBot({bot: bot, key: 'enlisted', value: true})
-  }
-  removeFromArmy = (bot) => {
-    this.updateBot({bot: bot, key: 'enlisted', value: false})
   }
 
   selectBot = (bot) => {
@@ -60,21 +56,51 @@ class BotsPage extends React.Component {
     })
   }
 
+  filterBots = ({field, value}) => {
+    let botsCopy = this.state.bots
+    botsCopy = botsCopy.filter(bot => bot[field] === value)
+    console.log(field)
+    console.log(value)
+    this.setState({
+      currentBots: botsCopy
+    })
+  }
+
+  sortBots = (field) => {
+    let botsCopy = this.state.currentBots
+    botsCopy = botsCopy.sort((botA, botB) => {return botB[field] - botA[field]})
+    console.log(field)
+    this.setState({
+      currentBots: botsCopy
+    })
+  }
+
+  renderAllBots = () => {
+    this.setState({
+      currentBots: this.state.bots
+    })
+  }
+
   render() {
     return (
       <div>
+        <Navbar
+          filterBots={this.filterBots}
+          renderAllBots={this.renderAllBots}
+          sortBots={this.sortBots}
+        />
         <YourBotArmy
           bots={this.state.bots.filter(bot => bot.enlisted === true)}
-          handleClick={this.removeFromArmy}
+          handleClick={(bot) => this.updateBot({bot: bot, key: 'enlisted', value: false})}
         />
         {this.state.selected ?
           <BotSpecs
             bot={this.state.selected}
-            handleEnlist={this.addToArmy}
+            handleEnlist={(bot) => this.updateBot({bot: bot, key: 'enlisted', value: true})}
             deselect={this.deselect}
           /> :
           <BotCollection
-            bots={this.state.bots.filter(bot => bot.enlisted !== true)}
+            bots={this.state.currentBots.filter(bot => bot.enlisted !== true)}
             handleClick={this.selectBot}
           /> }
       </div>
