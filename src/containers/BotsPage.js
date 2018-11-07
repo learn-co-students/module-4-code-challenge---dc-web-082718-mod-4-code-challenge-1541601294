@@ -1,6 +1,9 @@
 import React from "react";
 import BotCollection from "./BotCollection"
 import YourBotArmy from "./YourBotArmy"
+import BotSpecs from "../components/BotSpecs"
+import { BrowserRouter as Router, Route } from 'react-router-dom';
+
 
 const API = "https://bot-battler-api.herokuapp.com/api/v1/bots";
 
@@ -11,7 +14,8 @@ class BotsPage extends React.Component {
       super();
       this.state = {
           army: [],
-          bots: []
+          bots: [],
+          selected: {}
       }
   }
 
@@ -24,7 +28,11 @@ class BotsPage extends React.Component {
 
 
   addBotToArmy = (bot) => {
-      if(this.state.army.includes(bot)){
+      if(Object.keys(bot).length === 0 ){
+          alert(`Select a bot first!`);
+      }
+      else if(this.state.army.includes(bot)){
+
           alert(`Bot ${bot.name} already in your army!`);
       }
       else{
@@ -45,11 +53,34 @@ class BotsPage extends React.Component {
       });
   }
 
+  selectBot = (bot) => {
+      this.setState({selected: bot})
+      console.log("select");
+  }
+
+  listOfBots = () => {
+
+      return <BotCollection bots={this.state.bots} handleClick={this.selectBot}/>
+  };
+
+
+  specs = () => {
+
+      return <BotSpecs bot={this.state.selected} handleAdd={this.addBotToArmy} />
+  }
+
   render() {
     return (
       <div>
+
         <YourBotArmy army={this.state.army} handleRemove={this.removeBotFromArmy}/>
-        <BotCollection bots={this.state.bots} handleAdd={this.addBotToArmy}/>
+
+         <Router>
+            <React.Fragment>
+                <Route exact path="/" render={this.listOfBots} />
+                <Route path="/details" render={this.specs} />
+            </React.Fragment>
+        </Router>
       </div>
     );
   }

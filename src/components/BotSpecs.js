@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from 'react-router-dom';
 
 const BotSpecs = props => {
   let { bot } = props;
@@ -58,20 +59,16 @@ const BotSpecs = props => {
                 </div>
               </div>
             </div>
-            <button
-              className="ui button fluid"
-              onClick={() =>
-                console.log('connect this to a function that shows all bots')
-              }
-            >
+
+            <Link key={bot.id} to={`/`}>
+            <button className="ui button fluid">
               Go Back
             </button>
+            </Link>
             <button
               className="ui button fluid"
               onClick={() =>
-                console.log(
-                  "connect this to a function that adds this bot to your bot army list"
-                )
+                {props.handleAdd(bot)}
               }
             >
               Enlist
